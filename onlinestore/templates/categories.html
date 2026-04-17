@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Categories{% endblock %}
+{% block content %}
+<div class="page-title">🗂 Categories</div>
+<div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;align-items:start">
+  <div class="card">
+    <h2 style="font-size:15px;margin-bottom:14px">Add New Category</h2>
+    <form method="POST">
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Category Name *</label>
+        <input name="name" required placeholder="Electronics">
+      </div>
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Description</label>
+        <textarea name="description" rows="3" placeholder="Short description..." style="resize:vertical"></textarea>
+      </div>
+      <button class="btn btn-primary" type="submit" style="width:100%">Add Category</button>
+    </form>
+  </div>
+  <div class="card">
+    <h2 style="font-size:15px;margin-bottom:14px">All Categories</h2>
+    {% if categories %}
+    <table>
+      <thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Products</th></tr></thead>
+      <tbody>
+      {% for c in categories %}
+      <tr>
+        <td>#{{ c.category_id }}</td>
+        <td><strong>{{ c.name }}</strong></td>
+        <td style="font-size:13px;color:#666">{{ c.description or '—' }}</td>
+        <td>{{ c.product_count }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No categories yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

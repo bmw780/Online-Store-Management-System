@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}New Order{% endblock %}
+{% block content %}
+<div class="page-title">🛍 Place New Order</div>
+<div class="card" style="max-width:760px">
+  <form method="POST" id="orderForm">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Customer & Delivery Address *</label>
+        <select name="customer_id" id="custSelect" required onchange="filterAddresses()">
+          <option value="">Select customer</option>
+          {% for c in customers %}
+          <option value="{{ c.customer_id }}" data-addr="{{ c.address_id }}">{{ c.name }} — {{ c.address }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Address ID (auto-selected)</label>
+        <input name="address_id" id="addrId" readonly style="background:#f5f5f5" placeholder="Select customer first">
+      </div>
+      <div class="form-group">
+        <label>Payment Method *</label>
+        <select name="payment_method" required>
+          <option value="UPI">UPI</option>
+          <option value="Card">Card</option>
+          <option value="COD">Cash on Delivery</option>
+          <option value="NetBanking">Net Banking</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin:20px 0 10px;font-weight:600;color:#1a237e">Order Items</div>
+    <div id="items-container">
+      <div class="product-row" id="row-0">
+        <div class="form-group">
+          <label>Product</label>
+          <select name="product_id[]" required>
+            <option value="">Select product</option>
+            {% for p in products %}
+            <option value="{{ p.product_id }}" data-price="{{ p.price }}">{{ p.name }} — ₹{{ p.price }} (stock: {{ p.stock_qty }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group" style="max-width:100px">
+          <label>Qty</label>
+          <input name="quantity[]" type="number" min="1" value="1" required>
+        </div>
+      </div>
+    </div>
+    <button type="button" onclick="addRow()" class="btn btn-outline btn-sm" style="margin-top:8px">+ Add another product</button>
+
+    <div style="margin-top:24px;display:flex;gap:10px">
+      <button class="btn btn-success" type="submit">Place Order</button>
+      <a href="/orders" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<script>
+const products = {{ products | tojson }};
+
+function filterAddresses() {
+  const sel = document.getElementById('custSelect');
+  const opt = sel.options[sel.selectedIndex];
+  document.getElementById('addrId').value = opt ? opt.dataset.addr || '' : '';
+}
+
+let rowCount = 1;
+function addRow() {
+  const c = document.getElementById('items-container');
+  const div = document.createElement('div');
+  div.className = 'product-row';
+  div.id = 'row-' + rowCount;
+  div.innerHTML = `
+    <div class="form-group">
+      <label>Product</label>
+      <select name="product_id[]" required>
+        <option value="">Select product</option>
+        ${products.map(p => `<option value="${p.product_id}" data-price="${p.price}">${p.name} — ₹${p.price} (stock: ${p.stock_qty})</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group" style="max-width:100px">
+      <label>Qty</label>
+      <input name="quantity[]" type="number" min="1" value="1" required>
+    </div>
+    <button type="button" onclick="this.parentElement.remove()" class="btn btn-danger" style="margin-bottom:0;align-self:flex-end">✕</button>
+  `;
+  c.appendChild(div);
+  rowCount++;
+}
+</script>
+{% endblock %}

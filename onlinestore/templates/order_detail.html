@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Order #{{ order.order_id }}{% endblock %}
+{% block content %}
+<div class="page-title">🧾 Order #{{ order.order_id }}</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:start">
+  <div>
+    <!-- Items -->
+    <div class="card">
+      <h2 style="font-size:15px;margin-bottom:14px">Order Items</h2>
+      <table>
+        <thead><tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead>
+        <tbody>
+        {% for item in items %}
+        <tr>
+          <td>{{ item.product_name }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>₹{{ "%.2f"|format(item.unit_price) }}</td>
+          <td><strong>₹{{ "%.2f"|format(item.total_price) }}</strong></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr style="border-top:2px solid #1a237e">
+            <td colspan="3" style="text-align:right;font-weight:bold;padding:10px 14px">Grand Total</td>
+            <td style="font-weight:bold;font-size:16px;color:#1a237e">₹{{ "%.2f"|format(order.total_amount) }}</td>
+          </tr>
+        </tfoot>
+      </table>
+      <p style="font-size:12px;color:#999;margin-top:8px">* Row totals computed via <code>quantity * unit_price</code> in SQL (total_price not stored — DA2 normalization)</p>
+    </div>
+
+    <!-- Shipment -->
+    {% if shipment %}
+    <div class="card">
+      <h2 style="font-size:15px;margin-bottom:14px">📦 Shipment Details</h2>
+      <table>
+        <tr><td style="color:#666;width:160px">Tracking No.</td><td><strong>{{ shipment.tracking_no }}</strong></td></tr>
+        <tr><td style="color:#666">Carrier</td><td>{{ shipment.carrier }}</td></tr>
+        <tr><td style="color:#666">Carrier Contact</td><td>{{ shipment.carrier_contact }}</td></tr>
+        <tr><td style="color:#666">Status</td><td><span class="badge badge-{{ shipment.status|lower }}">{{ shipment.status }}</span></td></tr>
+        <tr><td style="color:#666">Est. Delivery</td><td>{{ shipment.estimated_delivery }}</td></tr>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <!-- Order Info -->
+    <div class="card">
+      <h2 style="font-size:15px;margin-bottom:14px">Order Info</h2>
+      <table>
+        <tr><td style="color:#666">Customer</td><td><strong>{{ order.customer_name }}</strong></td></tr>
+        <tr><td style="color:#666">Email</td><td>{{ order.email }}</td></tr>
+        <tr><td style="color:#666">Address</td><td>{{ order.street }}, {{ order.city }}, {{ order.state }} – {{ order.pincode }}</td></tr>
+        <tr><td style="color:#666">Date</td><td>{{ order.order_date.strftime('%d %b %Y, %H:%M') }}</td></tr>
+        <tr><td style="color:#666">Status</td><td><span class="badge badge-{{ order.status|lower }}">{{ order.status }}</span></td></tr>
+      </table>
+    </div>
+
+    <!-- Payment -->
+    {% if payment %}
+    <div class="card">
+      <h2 style="font-size:15px;margin-bottom:14px">💳 Payment</h2>
+      <table>
+        <tr><td style="color:#666">Method</td><td>{{ payment.method }}</td></tr>
+        <tr><td style="color:#666">Amount</td><td>₹{{ "%.2f"|format(payment.amount) }}</td></tr>
+        <tr><td style="color:#666">Status</td><td><span class="badge badge-{{ payment.status|lower }}">{{ payment.status }}</span></td></tr>
+        <tr><td style="color:#666">Paid At</td><td>{{ payment.paid_at }}</td></tr>
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- Status Update -->
+    <div class="card">
+      <h2 style="font-size:15px;margin-bottom:14px">Update Status</h2>
+      <form method="POST" action="/orders/{{ order.order_id }}/status">
+        <div class="form-group" style="margin-bottom:12px">
+          <select name="status">
+            {% for s in ['Pending','Confirmed','Shipped','Delivered','Cancelled'] %}
+            <option value="{{ s }}" {% if order.status==s %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="btn btn-primary" style="width:100%">Update</button>
+      </form>
+    </div>
+
+    <a href="/orders" class="btn btn-outline" style="width:100%;justify-content:center">← Back to Orders</a>
+  </div>
+</div>
+{% endblock %}

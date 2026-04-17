@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Orders{% endblock %}
+{% block content %}
+<div class="page-title">🧾 Orders</div>
+<div class="card">
+  <div class="section-header">
+    <h2>All Orders ({{ orders|length }})</h2>
+    <a href="/orders/new" class="btn btn-primary">+ New Order</a>
+  </div>
+  {% if orders %}
+  <table>
+    <thead><tr><th>#</th><th>Customer</th><th>Amount</th><th>Order Status</th><th>Payment</th><th>Shipment</th><th>Date</th><th></th></tr></thead>
+    <tbody>
+    {% for o in orders %}
+    <tr>
+      <td><strong>#{{ o.order_id }}</strong></td>
+      <td>{{ o.customer }}</td>
+      <td>₹{{ "%.2f"|format(o.total_amount) }}</td>
+      <td><span class="badge badge-{{ o.status|lower }}">{{ o.status }}</span></td>
+      <td><span class="badge badge-{{ (o.payment_status or 'pending')|lower }}">{{ o.payment_status or 'None' }}</span></td>
+      <td><span class="badge badge-{{ (o.ship_status or 'processing')|lower }}">{{ o.ship_status or 'None' }}</span></td>
+      <td style="font-size:13px">{{ o.order_date.strftime('%d %b %Y') }}</td>
+      <td><a href="/orders/{{ o.order_id }}" class="btn btn-outline btn-sm">View</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">No orders yet. <a href="/orders/new">Place first order →</a></div>
+  {% endif %}
+</div>
+{% endblock %}

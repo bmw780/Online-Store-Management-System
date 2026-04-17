@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-title">📊 Dashboard</div>
+
+<div class="stats-grid">
+  <div class="stat-card" style="--color:#1a237e">
+    <div class="num">{{ stats.customers }}</div>
+    <div class="label">Total Customers</div>
+  </div>
+  <div class="stat-card" style="--color:#2e7d32">
+    <div class="num">{{ stats.products }}</div>
+    <div class="label">Products Listed</div>
+  </div>
+  <div class="stat-card" style="--color:#e65100">
+    <div class="num">{{ stats.orders }}</div>
+    <div class="label">Total Orders</div>
+  </div>
+  <div class="stat-card" style="--color:#6a1b9a">
+    <div class="num">₹{{ "%.0f"|format(stats.revenue) }}</div>
+    <div class="label">Revenue (Paid)</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="section-header">
+    <h2>Recent Orders</h2>
+    <a href="/orders/new" class="btn btn-primary">+ New Order</a>
+  </div>
+  {% if recent_orders %}
+  <table>
+    <thead><tr><th>#</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr></thead>
+    <tbody>
+    {% for o in recent_orders %}
+    <tr>
+      <td><strong>#{{ o.order_id }}</strong></td>
+      <td>{{ o.customer }}</td>
+      <td>₹{{ "%.2f"|format(o.total_amount) }}</td>
+      <td><span class="badge badge-{{ o.status|lower }}">{{ o.status }}</span></td>
+      <td>{{ o.order_date.strftime('%d %b %Y') }}</td>
+      <td><a href="/orders/{{ o.order_id }}" class="btn btn-outline btn-sm">View</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">No orders yet. <a href="/orders/new">Place the first one →</a></div>
+  {% endif %}
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+  <div class="card">
+    <div class="section-header"><h2>Quick Links</h2></div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <a href="/customers/add" class="btn btn-outline">+ Add Customer</a>
+      <a href="/products/add" class="btn btn-outline">+ Add Product</a>
+      <a href="/categories"   class="btn btn-outline">+ Add Category</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-header"><h2>About This App</h2></div>
+    <p style="font-size:13px;color:#555;line-height:1.7">
+      DA3 — Online Store Management System<br>
+      Built with <strong>Flask + MySQL</strong><br>
+      Schema: 9 BCNF relations from DA2<br>
+      Demonstrates: INSERT, SELECT, UPDATE, DELETE, JOINs, computed columns
+    </p>
+  </div>
+</div>
+{% endblock %}

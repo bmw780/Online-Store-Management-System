@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="page-title">📈 Reports</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+  <div class="card">
+    <h2 style="font-size:15px;margin-bottom:14px">Top Products by Revenue</h2>
+    {% if top_products %}
+    <table>
+      <thead><tr><th>Product</th><th>Units Sold</th><th>Revenue</th></tr></thead>
+      <tbody>
+      {% for p in top_products %}
+      <tr>
+        <td>{{ p.name }}</td>
+        <td>{{ p.units_sold }}</td>
+        <td>₹{{ "%.2f"|format(p.revenue) }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="empty">No sales data yet.</div>{% endif %}
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:15px;margin-bottom:14px">Orders by Status</h2>
+    {% if by_status %}
+    <table>
+      <thead><tr><th>Status</th><th>Count</th><th>Total Value</th></tr></thead>
+      <tbody>
+      {% for s in by_status %}
+      <tr>
+        <td><span class="badge badge-{{ s.status|lower }}">{{ s.status }}</span></td>
+        <td>{{ s.count }}</td>
+        <td>₹{{ "%.2f"|format(s.total) }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="empty">No orders yet.</div>{% endif %}
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:15px;margin-bottom:14px">Stock by Category</h2>
+    <table>
+      <thead><tr><th>Category</th><th>Products</th><th>Total Stock</th></tr></thead>
+      <tbody>
+      {% for c in by_category %}
+      <tr>
+        <td>{{ c.category }}</td>
+        <td>{{ c.products }}</td>
+        <td>{{ c.total_stock or 0 }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:15px;margin-bottom:14px">⚠ Low Stock Alert (< 5 units)</h2>
+    {% if low_stock %}
+    <table>
+      <thead><tr><th>Product</th><th>Stock</th></tr></thead>
+      <tbody>
+      {% for p in low_stock %}
+      <tr>
+        <td>{{ p.name }}</td>
+        <td style="color:#c62828;font-weight:bold">{{ p.stock_qty }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="empty" style="padding:20px">All products adequately stocked.</div>{% endif %}
+  </div>
+
+</div>
+
+<div class="card" style="margin-top:0">
+  <h2 style="font-size:15px;margin-bottom:10px">Key SQL Queries Demonstrated</h2>
+  <table>
+    <thead><tr><th>Operation</th><th>SQL Used</th></tr></thead>
+    <tbody>
+      <tr><td>Computed discount</td><td><code>SELECT price * 0.90 AS discount_price FROM PRODUCT</code></td></tr>
+      <tr><td>Computed line total</td><td><code>SELECT quantity * unit_price AS total_price FROM ORDER_ITEM</code></td></tr>
+      <tr><td>Multi-table JOIN</td><td><code>ORDER ⋈ CUSTOMER ⋈ ADDRESS ⋈ PAYMENT ⋈ SHIPMENT</code></td></tr>
+      <tr><td>Aggregate phones</td><td><code>GROUP_CONCAT(phone) from CUSTOMER_PHONE</code></td></tr>
+      <tr><td>Stock update on order</td><td><code>UPDATE PRODUCT SET stock_qty = stock_qty - qty</code></td></tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}
